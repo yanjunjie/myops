@@ -10,20 +10,23 @@ MySQL: >= 5.1
 
 ### 主机
 
-- In/Out消息统计
-- Topic增量数据排名
-- Consumer延迟实时排名
-- 可查看每个Topic Partition的Logsize Offsets Lag数据
-- 实时获取指定Group的Logsize Offsets Lag
-- 可定制的历史数据存储时间
+- 主机管理
+- 批量命令
+- 文件分发
+### 应用
+- 应用管理
+- 程序部署
+- 服务重启
+### 监控
+- 应用监控
+- 进程监控
+- 主机监控
+- 组件监控
+
 
 ![performance](images/kafka01.png)
 
-
-
 ![performance](images/kafka02.png)
-
-
 
 ![performance](images/kafka03.png)
 
