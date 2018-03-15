@@ -16,10 +16,17 @@ MySQL: >= 5.1
 - 应用监控 - 进程监控 - 主机监控 - 组件监控
 
 
-![performance](myops/image/appdep.jpg)
+![performance](image/appdep.jpg)
 
-![performance](images/kafka02.png)
+![performance](image/myops/image/appdep.jpg)
 
-![performance](images/kafka03.png)
+![performance](image/host_files.png)
 
+![performance](image/host_manager.png)
+
+![performance](image/monitor.png)
+
+![performance](image/package_dep.png)
+
+![performance](image/weblogic_inst_status.png)
 
