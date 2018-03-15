@@ -16,17 +16,12 @@ MySQL: >= 5.1
 - 应用监控 - 进程监控 - 主机监控 - 组件监控
 
 
-![performance](image/appdep.jpg)
 
-![performance](image/myops/image/appdep.jpg)
+![主页](https://github.com/yanjunjie/myops/raw/master/image/appdep.jpg)
+![主页](https://github.com/yanjunjie/myops/raw/master/image/host_files.png)
+![主页](https://github.com/yanjunjie/myops/raw/master/image/host_manager.png)
+![主页](https://github.com/yanjunjie/myops/raw/master/image/monitor.png)
+![主页](https://github.com/yanjunjie/myops/raw/master/image/package_dep.png)
+![主页](https://github.com/yanjunjie/myops/raw/master/image/weblogic_inst_status.png)
 
-![performance](image/host_files.png)
-
-![performance](image/host_manager.png)
-
-![performance](image/monitor.png)
-
-![performance](image/package_dep.png)
-
-![performance](image/weblogic_inst_status.png)
 
