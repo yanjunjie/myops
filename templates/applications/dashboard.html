@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+      <ul class="nav nav-sidebar">
+        <li><a href="{% url 'app_mgr' %}">应用管理</a></li>
+        <li><a href="{% url 'app_deploy' %}">程序部署</a></li>
+        <li><a href="{% url 'services' %}">服务重启</a></li>
+      </ul>
+      <!--
+      <a href="#collapseOne" class="nav-header" data-toggle="collapse"><i class="icon-table"></i>服务重启</a>
+        <ul id="collapseOne" class="nav nav-list collapse in">
+            <li ><a href="{% url 'services' %}">Java后台服务</a></li>              
+            <li ><a href="/monitor/host_mon/">WebLogic服务</a></li>
+        </ul>
+       -->
+      <ul class="nav nav-sidebar">
+        <li><a href="{% url 'demo' %}">测试页面</a></li>
+      </ul>
+{% endblock %}
+
+{% block content-panel %}
+Hosts
+{% endblock %}
+
+{% block bottom-js %}
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+        $("#navbar-menu a[href='"+ "{% url 'apps' %}"  + "']").parent().addClass("active");
+
+    });
+
+    </script>
+
+{% endblock %}

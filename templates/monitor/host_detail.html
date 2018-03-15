@@ -1,0 +1,137 @@
+{% extends "monitor/dashboard.html" %}
+  {% block content-panel  %}
+    <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">Monitor Data</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="panel panel-default">
+            <div class="panel-heading">主机监控详情</div>
+            <div class="panel-body">
+                {% for server in server %}
+                     <h3 class="page-header">主机: {{ server.server.hostname }} (IP: {{ server.server.ip_addr }})  uptime {{ server.uptime }}</h3>
+               {% endfor %}
+            </div>
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                {% for server in server %}
+                   Platform: {{ server.name }}, release: {{ server.release }}, version: {{ server.version }}, machine: {{ server.machine }}, <br> CPU: {{ server.cpu }}, Memory: {{ server.memory }}, Swap: {{ server.swap }}, Disk: {{ server.server_disk_total }}
+                {% endfor %}
+     
+                   </div>
+                </div>
+        </div>
+        <!-- <table id="tb_departments"></table> -->
+        <div >
+ 
+
+    <p>
+
+    <input type='button' onclick='allChartsSetStartTimestamp(1507366502, 1507452902)' value='Day'>
+    <input type='button' onclick='allChartsSetStartTimestamp(1506848102, 1507452902)' value='Week'>
+    <input type='button' onclick='allChartsSetStartTimestamp(1504774502, 1507452902)' value='Month'>
+    <input type='button' onclick='allChartsSetStartTimestamp(1475916902, 1507452902)' value='Year'>
+    <input type='button' onclick='allChartsSetStartTimestamp(1502697602, 1507452902)' value='Max'>
+    <p>
+
+            <style>
+                .dygraph-axis-label {font-size:14px; font-family: 'Arial'; color:#505050;}
+                .dygraph-label  {font-size:12px; font-family: 'Arial'; font-style: italic; color:#505050;}
+                .dygraph-title  {font-size:14px; font-family: 'Arial'; font-weight: bold; text-align:left;padding-left:80px; font-style: normal; color:#000000;}
+                .dygraph-legend {font-size:14px; font-family: 'Arial'; color:#505050;}
+            </style>
+        
+    <div id='chart_network_io_chart_div' style='width: 100%; height: 140px; margin:0px; pading:0px;'></div>
+    <br><br>
+    <div id='chart_cpu_usage_chart_div' style='width: 100%; height: 140px; margin:0px; pading:0px;'></div>
+    <br><br>
+    <div id='chart_disk_io_chart_div' style='width: 100%; height: 140px; margin:0px; pading:0px;'></div>
+
+
+{% endblock %}
+
+{% block bottom-js %}
+
+<script type='text/javascript'>
+    function chart_network_io_drawChart() {
+        chart_network_io_options = {"labels":["Date","IN bps","OUT bps"],"labelsKMB":true,"ylabel":"Bits per second","colors":["#00b040","#0050c0"],"title":"Network I\/O","gridLineColor":"#c0c0c0","includeZero":true,"strokeWidth":2,"labelsDivStyles":{"textAlign":"right"},"labelsDivWidth":400,"fillGraph":true,"fillAlpha":0.12,"titleHeight":14,"dateWindow":[1507366502000,1507452902000]}    
+     chart_network_io_chart = new Dygraph(
+     document.getElementById('chart_network_io_chart_div'),
+            [
+                [new Date("2017-08-14T04:00:02-04:00"),49160,36960],
+[new Date("2017-08-14T08:00:01-04:00"),21400,15368],
+[new Date("2017-08-14T12:00:02-04:00"),5152,32],
+[new Date("2017-08-14T16:00:02-04:00"),5288,32],
+[new Date("2017-08-14T20:00:01-04:00"),5048,32],
+[new Date("2017-08-15T00:00:02-04:00"),8456,136],
+[new Date("2017-10-08T04:55:02-04:00"),0],
+[new Date("2017-10-08T04:50:01-04:00"),9680,24],
+[new Date("2017-10-08T04:55:02-04:00"),10000,32],
+
+            ], chart_network_io_options
+        );
+    }
+    $(document).ready(function () {
+        chart_network_io_drawChart();
+    });
+    </script>
+
+
+
+ <script type='text/javascript'>
+    function chart_cpu_usage_drawChart() {
+        chart_cpu_usage_options = {"labels":["Date","CPU Usage, %"],"labelsKMB":true,"ylabel":"CPU Usage, %","colors":["#00b040"],"title":"CPU Usage, 100% = 1 Core","gridLineColor":"#c0c0c0","includeZero":true,"strokeWidth":2,"labelsDivStyles":{"textAlign":"right"},"labelsDivWidth":400,"fillGraph":true,"fillAlpha":0.12,"titleHeight":14,"dateWindow":[1507366502000,1507452902000]}    
+        chart_cpu_usage_chart = new Dygraph(
+            document.getElementById('chart_cpu_usage_chart_div'),
+            [
+                [new Date("2017-08-14T04:00:02-04:00"),0],
+[new Date("2017-08-14T08:00:01-04:00"),0],
+[new Date("2017-08-14T12:00:02-04:00"),0],
+[new Date("2017-08-14T16:00:02-04:00"),0],
+[new Date("2017-08-14T20:00:01-04:00"),0],
+[new Date("2017-08-15T00:00:02-04:00"),0],
+[new Date("2017-08-15T04:00:01-04:00"),0],
+[new Date("2017-08-15T08:00:02-04:00"),0],
+[new Date("2017-08-15T12:00:02-04:00"),0],
+[new Date("2017-08-15T16:00:02-04:00"),0],
+[new Date("2017-08-15T20:00:02-04:00"),0],
+[new Date("2017-08-16T00:00:02-04:00"),0],
+[new Date("2017-10-08T04:50:01-04:00"),0],
+[new Date("2017-10-08T04:55:02-04:00"),0],
+
+            ], chart_cpu_usage_options
+        );
+    }
+    $(document).ready(function () {
+        chart_cpu_usage_drawChart();
+    });
+    </script>
+
+
+    <script type='text/javascript'>
+    function chart_disk_io_drawChart() {
+        chart_disk_io_options = {"labels":["Date","READ Bps","WRITE Bps"],"labelsKMB":true,"ylabel":"Bytes per second","colors":["#00b040","#0050c0"],"title":"Storage I\/O","gridLineColor":"#c0c0c0","includeZero":true,"strokeWidth":2,"labelsDivStyles":{"textAlign":"right"},"labelsDivWidth":400,"fillGraph":true,"fillAlpha":0.12,"titleHeight":14,"dateWindow":[1507366502000,1507452902000]}    
+        chart_disk_io_chart = new Dygraph(
+            document.getElementById('chart_disk_io_chart_div'),
+            [
+                [new Date("2017-08-14T04:00:02-04:00"),251,8514],
+[new Date("2017-08-14T08:00:01-04:00"),188,2649],
+[new Date("2017-08-14T12:00:02-04:00"),111,1605],
+[new Date("2017-08-14T16:00:02-04:00"),114,1806],
+[new Date("2017-08-14T20:00:01-04:00"),114,1810],
+[new Date("2017-08-15T00:00:02-04:00"),175,2606],
+[new Date("2017-10-08T04:50:01-04:00"),9882,561],
+[new Date("2017-10-08T04:55:02-04:00"),60,33],
+
+            ], chart_disk_io_options
+        );
+    }
+    $(document).ready(function () {
+        chart_disk_io_drawChart();
+    });
+</script>
+
+{% endblock %}

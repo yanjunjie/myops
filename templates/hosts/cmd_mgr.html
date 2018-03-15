@@ -1,0 +1,278 @@
+{% extends "hosts/dashboard.html" %}
+{% block content-panel  %}
+{% load staticfiles %}
+<link href="{% static 'css/fileinput.min.css' %}" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{% static 'js/fileinput.min.js' %} "> </script>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">Host Info</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        <div class="panel panel-default">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+                <div class="demo-box">
+                        <div id="id_span_msg"></div>
+                       <textarea name="cmd" class="form-control" rows="3" placeholder="输入要执行的命令..."></textarea>
+                </div>
+        <div id="id_span_msg">{{ sub.Succeed }}</div>
+        <div id="result">{{ result.cmd }}</div>
+        </div>
+        </div>
+        <!-- /.row -->
+        <!-- <table id="tb_departments"></table>
+        <label class="control-label" >常用:</label>
+        <span class="label label-default">查看机器负载</span>
+        <span class="label label-default">磁盘使用率</span>
+        <span class="label label-default">TOP10进程</span>
+        -->
+        <div >
+         <div id="toolbar">
+            <div class="form-inline" role="form">
+                <div class="form-group" >
+                    <label class="control-label " for="group_id" >主机组:</label>
+                    <select id='group_id' class="form-control">
+                     <option value ="all">未分组</option>
+                                     {% for group in request.user.host_groups.select_related %}
+                                     <option value ="{{ group.id }}">{{ group.name }}  [ {{ group.bindhosttouser_set.select_related.count }} ]</option>
+                                     {% endfor %}
+                    </select>
+                </div>
+                        <div class="form-group">
+                              <label class="control-label" for="args">用户:</label>
+                              <select id='local_filename' class="form-control" name="local_filename">
+                              <option value="odin">odin</option>
+                              </select>
+
+                       </div>
+               <button id="execute" type="submit" class="btn btn-success" data-toggle="modal" data-target="#restModal">执行命令</button>
+               <button id="history" type="submit" class="btn btn-default">历史记录</button>
+               <!--  <button type="button"   style="margin-left:50px" id="btn_query" class="btn btn-success pull-right" onclick="SubmitTask()" >执行任务</button> -->
+            </div>
+        </div>
+        <table id = "tb1"
+             data-toggle="table"
+             data-show-columns="true" 
+             data-toolbar="#toolbar" 
+             data-search="true" 
+             data-show-toggle="true"
+             data-pagination="true"
+             data-url="/hosts/hosts_list"
+             data-reorderable-columns="true">
+            <thead>
+            <tr>
+                  <th data-field="state" data-checkbox="true"></th>
+                  <th data-field="id" data-sortable="true">ID</th>
+                  <th data-field="hostname" data-sortable="true">Hostname</th>
+                  <th data-field="ipaddr" data-sortable="true">IP</th>
+                  <th data-field="systemtype" data-sortable="true">System type</th>
+            </tr>
+            </thead>
+        </table>                                                                                                                                                               
+    </div>                   
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+
+            <!-- /.row -->
+
+<div class="modal-header">
+    <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+    <h3 class="modal-title">
+        工具执行详情
+    </h3>
+</div>
+
+
+
+<div class="modal fade" id="restModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel"> {{ cmd  }}
+                                        模态框（Modal）标题
+                                </h4>
+                        </div>
+                        <div class="modal-body">
+                             <div class="row">
+                                   <div id="result_data" class="col-sm-6">
+                                       <dl class="dl-detail dl-sm">
+                                                <dt>结果:</dt>
+                                                <dd><span tool-result status="executionResult.totalStatus">{{ result.minion_count }}    {{ result.cmd_succeed }}    {{ cmd_failure }}    {{ failure_minion }}</span></dd>
+                                        </dl>
+  
+                                   </div>
+                                   <div id="Failure_data" class="col-sm-6">
+                                            <dl class="dl-detail dl-sm">
+                                              <dt>用户:</dt>
+                                              <dd>{{executionResult.username}}</dd>
+                                           </dl>
+                                   </div> 
+                             </div>
+                             <div class="ui-tab">
+                                <ul class="nav nav-tabs">
+                                  <li ng-repeat="agent in executionResult.agents" ng-class="{active: activeAgent === agent}">
+                                   <a href ng-click="setActiveAgent(agent)" >{{agent}}192.168.1.132<i tool-agent-result status="executionResult.status[agent]"></i></a>
+                                 </li>
+                                </ul>
+                               <div class="tab-content">
+                                   <div id="exec_output" class="form-group" ng-if="executionResult.outputs[activeAgent]">
+                                       <label class="control-label">执行输出</label>
+                                       <dl class="tool-outputs">
+                                           <dt ng-repeat-start="(key, value) in executionResult.outputs[activeAgent]" ng-bind="key">key</dt>
+                                           <dd ng-repeat-end>
+                                               <pre ng-bind="value" style="background: #2f333d;color: #c5c8c6" ></pre>
+                                           </dd>
+                                       </dl>
+                                   </div>
+                               </div>
+                             </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                </button>
+                        </div>
+                </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+</div>
+<script type="text/javascript">                                                                                                                         
+
+     var $table = $('#table'),
+         $exec = $('#execute');
+     var data_list = {};
+     var hostids = '';
+     $(function () {
+        $exec.click(function () {
+          //var row=JSON.stringify($table.bootstrapTable('getSelections'));
+          //alert(row);
+           var hosts = getIdSelections()
+           var hostname = getNameSelections()
+           var cmd = $.trim($("textarea[name='cmd']").val());
+           if (hosts){
+            $.ajax({
+	    url: "/hosts/command/", 
+	    data: { 
+	       host_ip : hosts,
+               host_name : hostname,
+               cmd_text : cmd
+	    }, 
+	    type: "POST",
+            dataType : "json",
+	    cache : false,
+	    success: function(data) {
+               $('#exec_output').empty();
+               //var obj =[{"name":"admin","password":"123456"}];
+               //alert(obj)
+               dat = data.result
+               var html ='',html_F=''; 
+               for(i=0;i<dat.length; i++){
+                   html += "<dl> <dt>结果 :</dt><dd>"+dat[i]['minion_count'] +' '+ dat[i]['cmd_succeed']+' ' +dat[i]['cmd_failure'] +"</dd>  <dt>目标:</dt> <dd> "+dat[i]['hosts'] +"</dd></dl>";
+                   html_F += "<dl> <dt>用户:</dt><dd>odin</dd>  <dt>失败:</dt> <dd> "+dat[i]['failure_minion'] +"</dd></dl>";
+                      
+                }
+                $('#Failure_data').html(html_F)
+                $('#result_data').html(html)
+               msg = data.msg
+               var html = '';
+               $.each(msg,function(k,v){
+                    html += "<dl> <dt>Minions : "+k+"</dt><dd><pre style='background: #2f333d;color: #c5c8c6'>"+v+"</pre></dd> </dl>";
+               });
+               //$('.modal-body').append(html);
+               $('#exec_output').html(html)
+	    },error: function( xhr, status, errorThrown ) {
+	    alert( "Sorry, there was a problem!" );
+	    console.log( "Error: " + errorThrown );
+	    console.log( "Status: " + status );
+	    console.dir( xhr );
+	    },	    
+	    });
+           }
+        });
+    });
+    function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+        return row.ip;
+    });
+    }
+    function getNameSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+        return row.hostname;
+    });
+    }
+   
+function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {                                                                                                      
+        return row.ip;
+});}
+function getNameSelections() {
+  return $.map($table.bootstrapTable('getSelections'), function (row) {
+     return row.hostname;
+});}
+var $table = $('#tb1');
+$("select#group_id").on("change",function(){
+    var data = []
+    var $table = $('#tb1');
+    var gid = $('select#group_id').val();
+    $.ajax({
+    url: "/hosts/hosts_list",
+    data: {
+        selected_gid : gid
+    },
+    type: "GET",
+    dataType : "json", 
+    
+    success: function(data) {
+        //$table.bootstrapTable({data: data});
+        $table.bootstrapTable('load', data);
+    }, error: function( xhr, status, errorThrown ) {                                                                                                                           
+        alert( "Sorry, there was a problem!" );                                                                                                                                
+        console.log( "Error: " + errorThrown );                                                                                                                                
+        console.log( "Status: " + status );                                                                                                                                    
+        console.dir( xhr );                                                                                                                                                    
+    },                                                                                                                                                                         
+                                                                                                                                                                               
+    })                                                                                                                                                                         
+});
+
+$('#restModal1').on('show.bs.modal', function (event) {
+   $(this).removeData('bs.modal');
+   var modal = $(this);
+   var hosts = getIdSelections()
+   var hostname = getNameSelections()
+   var cmd = $.trim($("textarea[name='cmd']").val());
+   $.ajax({
+            url: "/hosts/command/", 
+            data: { 
+               host_ip : hosts,
+               host_name : hostname,
+               cmd_text : cmd
+            }, 
+            type: "POST",
+            //dataType : "json",
+            cache : false,
+            success: function(data) {
+               //window.location.reload();
+               alert("====")
+            },error: function( xhr, status, errorThrown ) {
+            alert( "Sorry, there was a problem!" );
+            console.log( "Error: " + errorThrown );
+            console.log( "Status: " + status );
+            console.dir( xhr );
+            },      
+            });
+  
+});
+
+
+</script> 
+
+        </div>
+        <!-- /#page-wrapper -->
+{% endblock %}

@@ -1,0 +1,42 @@
+/*html body height 100%*/
+
+.nav_left {
+	border-right: 1px solid rgb(245, 245, 245);
+}
+
+.nav_left_top {
+	text-align: center;
+	padding-bottom: 10px;
+	color: #0f0f0f;
+	margin-top: 30px;
+}
+
+.context {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+
+/*覆盖bootstrap*/
+.navbar-right {
+	margin-right: 5px;
+}
+
+/*autocomplete 可滚动jieg*/
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    /* 防止水平滚动条 */
+    overflow-x: hidden;
+}
+/* IE 6 不支持 max-height
+* 我们使用 height 代替，但是这会强制菜单总是显示为那个高度
+*/
+* html .ui-autocomplete {
+    height: 100px;
+}

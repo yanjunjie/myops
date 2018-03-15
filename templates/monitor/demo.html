@@ -1,0 +1,479 @@
+
+{% extends "monitor/dashboard.html" %}
+  {% block content-panel  %}
+
+   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+
+<div class="panel-body" style="padding-bottom:0px;">
+        <div class="panel panel-default">
+            <div class="panel-heading">查询条件</div>
+            <div class="panel-body">
+                <form id="formSearch" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                        <label class="control-label col-sm-1" for="txt_search_departmentname">部门名称</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="txt_search_departmentname">
+                        </div>
+                        <label class="control-label col-sm-1" for="txt_search_statu">状态</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="txt_search_statu">
+                        </div>
+                        <div class="col-sm-4" style="text-align:left;">
+                            <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>       
+
+        <div id="toolbar" class="btn-group">
+            <button id="btn_add" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+            </button>
+            <button id="btn_edit" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+            </button>
+            <button id="btn_delete" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+            </button>
+            <button id="button" class="btn btn-default">updateRow</button>
+        </div>
+        <table id="tb_departments"></table>
+        <table class="table table-bordered table-striped" id="dailyTable"></table>
+
+
+    </div>
+
+
+    <div class="container">
+        <h1>Detail View</h1>
+        <p>Use <code>detailView</code> and <code>detailFormatter</code> options to show detail view.</p>
+        <table id="table"
+               data-height="460"
+               data-detail-view="true"
+               data-detail-formatter="detailFormatter"
+               >
+            <thead>
+            <tr>
+                <th data-field="Code">序号</th>
+                <th data-field="TuanGouName">商品名称</th>
+                <th data-field="StartDate">开始时间</th>
+                <th data-field="EndTime">结束时间</th>
+            </tr>
+            </thead>
+        </table>
+        <table id="table1"></table>
+        <table id="table2"></table>
+    </div>
+<script type="text/javascript">
+
+    $(document).ready(function($) {
+    //alert("ttt")
+    //var tbodyDate = $('#tbodyDate');
+        //tbodyDate.empty();
+    var tableinfo = $('table#table2');
+    $.ajax({
+      url: "demo_data",
+      //type: "GET",
+      dataType : "json",
+      success: function(data) {
+        //var dataArray = $.parseJSON(data.jsonData);
+        //var len = data.length;
+          $("#table2").bootstrapTable({
+          data: data,
+                       method: "get", //请求方法                                                                                                                               
+                       striped: true, //是否显示行间隔色                                                                                                                       
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  
+//排序方式                                                                                                                           
+                       pagination: true,    // 显示页码等信息                                                                                                                  
+                       showColumns: false,  // 选择显示的列                                                                                                                    
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       pageSize: 10,           // 当前分页值                                                                                                                   
+                       pageList: [10, 20],  // 分页选页                                                                                                                        
+                       detailView: true,//父子表                                                                                                                               
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存                                                                                                                                 
+                       striped: true, // 隔行加亮                                                                                                                              
+                       onExpandRow: onExpandRow,                                                                                                                               
+                       //responseHandler: responseHandler,//格式化数据
+                   columns: [
+                              {
+                             checkbox: true
+                         }, 
+                          {
+                               title: 'ID',
+                               field: 'id',
+                               align: 'center',
+                           }, 
+                           {
+                               title: '项目',
+                               field: 'project',
+                               align: 'center',
+                             
+                           }, 
+                          
+                           {
+                               title: '项目工程名',
+                               field: 'package',
+                               align: 'center',
+                           },
+                           {
+                               title: '子系统',
+                               field: 'subsys',
+                               align: 'center',
+                               
+                           },
+                           {
+                               title: '状态',
+                               field: 'status',
+                               align: 'center',
+                           },
+                           {                                                                                                                                                   
+                               title: '操作',
+                               field: 'id',
+                               align: 'center',
+                               formatter:function(value,row,index){  
+                                 var e;                             
+                                     e = '<button type="button" id="instance" class="btn btn-success btn-xs" data-ops="start">全部启动</button> <button type="button" id="instance" class="btn btn-success btn-xs" data-ops="stop">全部停止</button>';                                  
+                                     return e;  
+                                 
+                               }
+                           }
+                       ]
+          });
+
+      }, error: function( xhr, status, errorThrown ) {
+        alert( "Sorry, there was a problem!" );
+        console.log( "Error: " + errorThrown );
+        console.log( "Status: " + status );
+        console.dir( xhr );
+    },
+   })
+ });
+
+    $(document).ready(function($) {
+        
+          var TableInit = function () {
+             var oTableInit = new Object();
+             oTableInit.Init = function () {
+                 $('#table1').bootstrapTable('destroy');  
+                 $('#table1').bootstrapTable({
+                       
+                       method: "get", //请求方法
+                       striped: true, //是否显示行间隔色
+                       sortable: true, //是否启用排序  
+                       sortOrder: "asc",  //排序方式 
+                       url:"demo_data",
+                       dataType: "json",
+                       pagination: true,    // 显示页码等信息 
+                       showColumns: false,  // 选择显示的列 
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox
+                       pageNumber: 1,         //首页页码
+                       pageSize: 10,           // 当前分页值 
+                       pageList: [10, 20],  // 分页选页 
+                       detailView: true,//父子表
+                       queryParams: queryParams,//传递参数（*）
+                       sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页
+                       cache: false, // 不缓存
+                       striped: true, // 隔行加亮
+                       onExpandRow: onExpandRow,
+                       responseHandler: responseHandler,//格式化数据                 
+                       columns: [
+                              {
+                             checkbox: true
+                         }, 
+                          {
+                               title: '订单号/进仓编号',
+                               field: 'Code',
+                               align: 'center',
+                           }, 
+                           {
+                               title: '运单号',
+                               field: 'TuanGouName',
+                               align: 'center',
+                             
+                           }, 
+                          
+                           {
+                               title: '金额',
+                               field: 'Code',
+                               align: 'center',
+                           },
+                           {
+                               title: '计费重量',
+                               field: 'StartDate',
+                               align: 'center',
+                               
+                           },
+                           {
+                               title: '航班日期',
+                               field: 'EndTime',
+                               align: 'center',
+                           },
+                       ]  
+                 });
+             };
+             return oTableInit;
+         };
+         //1.初始化Table
+         var oTable = new TableInit();
+         oTable.Init();
+         //点击查询
+         $(".dosearch").click(function(){
+             $('#table2').bootstrapTable('refresh');
+         });
+         //得到查询的参数  模糊查询条件参数放到里面
+         function queryParams(params){
+             return {
+                 pageSize: params.limit, //页面大小
+                 pageNo: (params.offset)/10+1 //页码
+                 
+                     
+             };
+         };
+         function queryParamschild(params){
+             return {
+                 pageSize: params.limit, //页面大小
+                 pageNo: (params.offset)/10+1 //页码
+                 
+                     
+             };
+         };
+         //父子表
+         function onExpandRow(index, row, $detail){
+             InitSubTable(index, row, $detail);
+         }
+         InitSubTable = function (index, row, $detail) {
+             
+             var cur_table = $detail.html('<table></table>').find('table');
+             $(cur_table).bootstrapTable({
+                  method: "get", //请求方法
+                  striped: true, //是否显示行间隔色
+                  sortable: true, //是否启用排序  
+                  sortOrder: "asc",  //排序方式 
+                  url:ctx+"/finance/generateInvoice"+row.id,
+                  dataType: "json",
+                  pagination: false,    // 显示页码等信息 
+                  showColumns: false,  // 选择显示的列 
+                  clickToSelect: false, //在点击行时，自动选择rediobox 和 checkbox
+                  pageNumber: 1,         //首页页码
+                  pageSize: 10,           // 当前分页值 
+                  pageList: [10, 20],  // 分页选页                    
+                  queryParams: queryParamschild,//传递参数（*）
+                  sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页
+                  cache: false, // 不缓存
+                  striped: true, // 隔行加亮                
+                  responseHandler: responseHandler,//格式化数据                 
+                  columns: [
+                         
+                     
+                      {
+                          title: '序号',
+                          field: 'mawbNo',
+                          align: 'center',
+                        
+                      }, 
+                     
+                     
+                      {
+                          title: '费用名称',
+                          field: 'entrustCostGross',
+                          align: 'center',
+                          
+                      },
+                      {
+                          title: '费用科目',
+                          field: 'etd',
+                          align: 'center',
+                      }, 
+                     {
+                          title: '单价(元)',
+                          field: 'flightNo',
+                          align: 'center',
+                      },
+                     {
+                          title: '单位',
+                          field: 'dispatchPort',
+                          align: 'center',
+                      },
+                     {
+                          title: '数量',
+                          field: 'destinationPort',
+                          align: 'center',
+                      },
+                     {
+                          title: '详细费用',
+                          field: 'isSettledIncome',
+                          align: 'center',
+                      }
+                     
+                  ]  
+            });
+             
+         };
+         //格式化数据
+         /*var html*/
+         
+         /*function onLoadSuccess(){
+             $('.pagination-detail').append(html)
+         }*/
+         function responseHandler(sourceData) { 
+             if (sourceData.code == "0000") {
+                 var pageData = sourceData.prepareIncvoiceOut.prepareIncvoiceOutArray;
+             
+                 
+                 
+                
+                 return {
+                     "total": sourceData.prepareIncvoiceOut.totalList, //总条数
+                     "rows": pageData //返回的数据格式
+                 };
+             } else {
+                 return {
+                     "total": 0,
+                     "rows": []
+                 };
+             };
+         }
+         function responseHandlerchild(sourceData) { 
+             if (sourceData.code == "0000") {
+                 var pageData = sourceData.list;
+              
+                 
+                 
+                
+                 return {
+                     "total": sourceData.prepareIncvoiceOut.totalList, //总条数
+                     "rows": pageData //返回的数据格式
+                 };
+             } else {
+                 return {
+                     "total": 0,
+                     "rows": []
+                 };
+             };
+         }
+         //除法函数
+          function accDiv(arg1, arg2) {
+              var t1 = 0, t2 = 0, r1, r2;
+              try {
+                  t1 = arg1.toString().split(".")[1].length;
+              }
+              catch (e) {
+              }
+              try {
+                  t2 = arg2.toString().split(".")[1].length;
+              }
+              catch (e) {
+              }
+              with (Math) {
+                  r1 = Number(arg1.toString().replace(".", ""));
+                  r2 = Number(arg2.toString().replace(".", ""));
+                  return (r1 / r2) * pow(10, t2 - t1);
+              }
+          }
+         
+         
+    })
+     function view(str){
+        var a=$('.tableed ').eq(str).html()
+        if(a=='查看费用'){
+            $('.tableed ').eq(str).html('收起费用')
+            $('#table2').bootstrapTable('expandRow', str);
+        }
+        else{
+            $('.tableed ').eq(str).html('查看费用')
+            $('#table2').bootstrapTable('collapseRow', str);
+        }
+         event.stopPropagation();  
+    }
+function onExpandRow(index, row,$detail) {
+        //var tableinfo = $detail.html('<table id="refresh"></table>').find('table');                                                                                                                         
+       $.ajax({
+           url : "/apps/demo/demo_data_test",
+           //type : 'GET',
+           dataType : "json",
+           success : function(data) {
+           //$detail.html('<table></table>').find('table');
+           $detail.html('<table id="refresh"></table>').find('table').bootstrapTable({
+                       data: data,
+                       method: "get", //请求方法                                                                                                                               
+                       striped: true, //是否显示行间隔色                                                                                                                       
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  //排序方式                                                                                                                           
+                       pagination: true,    // 显示页码等信息                                                                                                                  
+                       showColumns: false,  // 选择显示的列                                                                                                                    
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       //detailView: true,//父子表                                                                                                                               
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存                                                                                                                                 
+                       striped: true, // 隔行加亮                                                                                                                              
+                       onExpandRow: onExpandRow,                                                                                                                               
+                       //responseHandler: responseHandler,//格式化数据
+                   columns: [
+                          {
+                               title: '进程PID',
+                               field: 'pid',
+                               align: 'center',
+                           }, 
+                           {
+                               title: '部署路径',
+                               field: 'path',
+                               align: 'center',
+                             
+                           },                                                                                                                                                  
+                                                                                                                                                                               
+                           {                                                                                                                                                   
+                               title: '部署主机',                                                                                                                            
+                               field: 'host',                                                                                                                               
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: 'CPU',                                                                                                                                
+                               field: 'cpu',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '状态',                                                                                                                                  
+                               field: 'status',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '操作',                                                                                                                                  
+                               field: 'id',                                                                                                                                    
+                               align: 'center',                                                                                                                                
+                               formatter:function(value,row,index){                                                                                                            
+                                 var e;                                                                                                                                        
+                                     e = '<button type="button" id="instance" class="btn btn-success btn-xs" data-ops="start">启动</button> <button type="button" id="instance" class="btn btn-success btn-xs" data-ops="stop">停止</button>';                                  
+                                     return e;                                                                                                                                 
+                                                                                                                                                                               
+                               }                                                                                                                                               
+                           }                                                                                                                                                   
+                       ]                                                                                                                                                       
+                   });
+          } });                                                                                                                                                                   
+         
+                                                                                                                                                                               
+      }                                                                                                                                                                          
+ 
+   
+
+    var $table = $('#refresh'),
+        $button = $('#button');
+
+    $(function () {
+        $button.click(function () {
+            alert("refresh")
+            $table.bootstrapTable('refresh') 
+        });
+    });
+
+</script>
+{% endblock %}

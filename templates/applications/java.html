@@ -1,0 +1,272 @@
+<div class="panel panel-default">
+                       <div class="panel-heading">Java实例状态</div>
+                       <div class="panel-body">
+                          <div  class="num clearfix">
+                         <ul class="gist_modify pull-left list-inline">
+                            {% for h in server_status %}
+                            <li>
+                              <span class="lab_yellow">总共</span>
+                              <i>{{ h.count }}</i> 个实例
+                           </li>
+                           <li>
+                              <span class="lab_green">运行</span>
+                              <i>{{ h.running }}</i> 个实例
+                           </li>
+                           <li>
+                              <span class="lab_red">停止</span>
+                              <i>{{ h.stopped }}</i> 个实例
+                           </li>
+                           {% endfor %}
+                         </ul> 
+                          </div>
+                          <table id="table2"></table>
+                       </div>
+</div>
+
+<script>
+
+//Java父表格属性
+    //value='all'
+    //if(obj != 'all'){
+    //     var value = obj.options[obj.selectedIndex].value;
+    //    }
+    //var tableinfo = $('table#table0');
+    //$("#table0").bootstrapTable('removeAll');
+    $.ajax({
+      url: "/apps/deploy_info/java_data/",
+      //data: {
+      //      Type : value,
+      //     },
+      type: "GET",
+      dataType : "json",
+      success: function(data) {
+          $("#table2").bootstrapTable('destroy').bootstrapTable({
+          data: data,
+                       method: "get", //请求方法                                                                                                                               
+                       search: true, //是否显示搜索框功能
+                       pagination: true, //是否分页
+                       showRefresh: true, //是否显示刷新功能
+                       showToggle: true,
+                       striped: true, //是否显示行间隔色                                                                                                                       
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  //排序方式                                                                                                                           
+                       pagination: true,    // 显示页码等信息                                                                                                                  
+                       showColumns: true,  // 选择显示的列                                                                                                                    
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       detailView: true,//父子表
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       //sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存                                                                                                                                 
+                       onExpandRow: onExpandRow,
+                       //responseHandler: responseHandler,//格式化数据
+                   columns: [
+                              {
+                             checkbox: true
+                         },
+                          {
+                               title: 'ID',
+                               field: 'id',
+                               align: 'center',
+                           },
+                           {                                                                                                                                                   
+                               title: '项目',                                                                                                                                  
+                               field: 'project',                                                                                                                               
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '项目工程名',                                                                                                                            
+                               field: 'package',                                                                                                                               
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '子系统',                                                                                                                                
+                               field: 'subsys',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '状态',                                                                                                                                  
+                               field: 'status',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                               formatter: function (value, row, index) {                                                                                                       
+                                   //var html = [];                                                                                                                            
+                                   //return   status_env(value);                                                                                                               
+                                    return  status_env_span(value);                                                                                                                 
+                                   //html.push('<p class="text-success"> ' + value + '</p>');                                                                                  
+                                   //return html                                                                                                                               
+                               }                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '操作',                                                                                                                                  
+                               field: 'ops',                                                                                                                                    
+                               align: 'center',                                                                                                                                
+                               events: operateEventsJava_all,                                                                                                                       
+                               formatter:function(value,row,index){                                                                                                            
+                                 var e;                                                                                                                                        
+                                     e = '<button type="button" data-loading-text="启动中..."  class="processall btn btn-success btn-xs" data-ops="start">全部启动</button> <button type="button" data-loading-text="停止中..."  class="processall btn btn-success btn-xs" data-ops="stop">全部停止</button>';
+                                     return e;                                                                                                                                 
+                                                                                                                                                                               
+                               }                                                                                                                                               
+                           }                                                                                                                                                   
+                       ]
+          });                                                                                                                                                                  
+                                                                                                                                                                               
+      }, error: function( xhr, status, errorThrown ) {                                                                                                                         
+        alert( "Sorry, there was a problem!" );                                                                                                                                
+        console.log( "Error: " + errorThrown );                                                                                                                                
+        console.log( "Status: " + status );                                                                                                                                    
+        console.dir( xhr );                                                                                                                                                    
+    },                                                                                                                                                                         
+   })                                                                                                                                                                          
+
+//java子表格属性
+
+function onExpandRow(index, row,$detail) {                                                                                                                                     
+          var parentid = row.id
+          var tableinfo = $detail.html('<table></table>').find('table');                                                                                                                         
+           //$detail.html('<table></table>').find('table');
+           $detail.html('<table id="child_table_java"></table>').find('table').bootstrapTable('destroy').bootstrapTable({
+                       url : "/apps/deploy_info/java_data_sub/",
+                       method: "get", //请求方法                                                                                                                               
+                       striped: true, //是否显示行间隔色                                                                                                                       
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  //排序方式                                                                                                                           
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       //queryParams: parentid,
+                       queryParams: function queryParams(p) {   //设置查询参数
+                              p.id = parentid;
+                              return p;
+                       },
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       //sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存
+                   columns: [{ 
+                               title: 'ID',
+
+                               field: 'id',
+
+                               align: 'center',
+
+                           },         
+                          {                                                                                                                                                    
+                               title: '进程PID',                                                                                                                               
+                               field: 'pid',                                                                                                                                   
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '部署路径',                                                                                                                              
+                               field: 'path',                                                                                                                                  
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                                                                                                                                                                               
+                           {                                                                                                                                                   
+                               title: '部署主机',                                                                                                                              
+                               field: 'host',                                                                                                                                  
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '时间',                                                                                                                                   
+                               field: 'last_date',                                                                                                                                   
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '状态',                                                                                                                                  
+                               field: 'status',                                                                                                                                
+                               formatter: function (value, row, index) {                                                                                                       
+                                   //var html = [];                                                                                                                            
+                                   return   status_envs(value);                                                                                                                
+                                   //html.push('<p class="text-success"> ' + value + '</p>');                                                                                  
+                                  //return html                                                                                                                                
+                                 }                                                                                                                                             
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '操作',                                                                                                                                  
+                               field: 'ops',                                                                                                                                   
+                               events: operateEvents,                                                                                                                          
+                               formatter:function(value,row,index){                                                                                                            
+                                 var e;                                                                                                                                        
+                                     e = '<button id="instance"  type="button" data-loading-text="Loading..."  class="process btn btn-default btn-xs" data-pd=parentid data-ops="start">启动</button> <button type="button"  class="process btn btn-default btn-xs" data-ops="stop">停止</button>';                                  
+                                     return e;                                                                                                                                 
+                                                                                                                                                                               
+                               }                                                                                                                                               
+                           }                                                                                                                                                   
+                       ]                                                                                                                                                       
+                   });                                                                                                                                                         
+                                                                                                                                                                         
+      }                                                                                                                                                                          
+        
+
+
+
+
+var $j_table1 = $('#table2');
+window.operateEventsJava_all = {
+        'click .processall' : function(e, value, row, index) {
+          var id = row.id;
+          var host = row.host;
+          var button = $(this);
+          var $start = $(this).button('loading')
+          var ops = button.data('ops');
+          //alert(ops)  
+          //start_run(row.id,row.host,row.path)
+           $.ajax({
+               url: "/apps/instance_ops/", 
+               data: {                                                                                                  
+                 ID : id,                                                                                              
+                 OPS : ops,
+            },                                                                                                       
+            type: "POST",
+            cache : false,
+            success: function(respose) { 
+                  alert(respose)
+                  $start.button('reset');
+                  //refreshOptions()
+                  $j_table1.bootstrapTable('refresh' ,{url:'/apps/deploy_info/java_data/'});
+               },error: function( xhr, status, errorThrown ) { 
+                   alert( "Sorry, there was a problem!" );                                                                  
+                   $start.button('reset');
+                   //refreshOptions()
+                    
+                  },
+              });
+         },
+    }
+
+
+//Java子表启停事件
+window.operateEvents = {
+        'click .process' : function(e, value, row, index) {
+          var id = row.id;
+          var host = row.host;
+          var path = row.path;
+          var button = $(this);
+          var $start = $(this).button('loading')
+          var ops = button.data('ops');
+          //alert(ops)
+          //start_run(row.id,row.host,row.path)
+           $.ajax({
+               url: "/apps/process_ops/",
+               data: {
+                 ID : id,                                                                                                                                                      
+                 HOST : host,                                                                                                                                                  
+                 PATH : path,                                                                                                                                                  
+                 OPS : ops,                                                                                                                                                    
+            },                                                                                                                                                                 
+            type: "POST",                                                                                                                                                      
+            cache : false,                                                                                                                                                     
+            success: function(respose) {                                                                                                                                       
+                  alert(respose)                                                                                                                                               
+                  $start.button('reset');                                                                                                                                      
+                  $("#child_table_java").bootstrapTable('refresh');
+               },error: function( xhr, status, errorThrown ) {                                                                                                                 
+                   alert( "Sorry, there was a problem!" );                                                                                                                     
+                                                                                                                                                                               
+                  },                                                                                                                                                           
+              });                                                                                                                                                              
+         },                                                                                                                                                                    
+    }                                                                                                                                                                          
+    
+
+
+</script>

@@ -1,0 +1,36 @@
+{% extends 'index.html' %}
+{% block context %}
+<div class="panel panel-default">
+	<div class="panel-heading">文件上传</div>
+	<div class="panel-body">
+		<div class="demo-box">  
+   			<input id="file_upload" type="file" name="Filedata">  
+			<hr/>
+        		<p>
+            			<a href="javascript:$('#file_upload').uploadify('upload')" class="btn btn-primary">上传</a> 
+       			</p>
+    			<div id="id_span_msg"></div>
+		</div> 
+	</div>
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+$(function(){
+	$("#file_upload").uploadify({
+		'swf' : '/static/img/uploadify.swf',
+		//后台处理页面
+		'uploader' : '/hosts/upload_script/',
+		//按钮显示文件
+		'buttonText' : '选择文件',
+		//设置允许多文件上传
+		'multi' : true,
+		//限制上传的大小
+		'fileSizeLimit' : '10MB',
+		'onUploadComplete' : function(file) {
+			$('#id_span_msg').append("<p class=bg-success>"+file.name+"上传成功</p>");
+		}
+	});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,339 @@
+<div class="panel panel-default">
+                       <div class="panel-heading">WebLogic实例状态</div>
+                       <div class="panel-body">
+                          <div  class="num clearfix">
+                         <ul class="gist_modify pull-left list-inline">
+                            {% for h in server_status %}
+                            <li>
+                              <span class="lab_yellow">总共</span>
+                              <i>{{ h.count }}</i> 个实例
+                           </li>
+                           <li>
+                              <span class="lab_green">运行</span>
+                              <i>{{ h.running }}</i> 个实例
+                           </li>
+                           <li>
+                              <span class="lab_red">停止</span>
+                              <i>{{ h.stopped }}</i> 个实例
+                           </li>
+                           {% endfor %}
+                         </ul> 
+                          </div>
+                          <table id="table0"></table>
+                       </div>
+</div>
+
+<script>
+
+//weblogic父表格属性
+
+    $.ajax({
+      url: "/apps/deploy_info/wls_data/",
+      type: "GET",
+      dataType : "json",
+      success: function(data) {
+          $("#table0").bootstrapTable('destroy').bootstrapTable({
+          data: data,
+                       method: "get", //请求方法                                                                                                                               
+                       search: true, //是否显示搜索框功能
+                       pagination: true, //是否分页
+                       showRefresh: true, //是否显示刷新功能
+                       showToggle: true,
+                       striped: true, //是否显示行间隔色                                                                                                                       
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  //排序方式                                                                                                                           
+                       pagination: true,    // 显示页码等信息                                                                                                                  
+                       showColumns: true,  // 选择显示的列                                                                                                                    
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       detailView: true,//父子表
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       //sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存                                                                                                                                 
+                       onExpandRow: onExpandRowwls,
+                       //responseHandler: responseHandler,//格式化数据
+                       columns: [
+                              {
+                             checkbox: true
+                         }, 
+                          {
+                               title: 'ID',                                                                                                                                    
+                               field: 'id',                                                                                                                                    
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '项目名称',                                                                                                                                  
+                               field: 'name',                                                                                                                               
+                               align: 'center',                                                                                                                                
+                               events: operateEventslink,
+                               formatter: function (value, row, index) {
+                                  var e;
+                                  e = '<a href="#" title="打开控制台" class="link" >'+value+'</a> ';
+                                  return e; 
+                               }
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '管理服务实例',                                                                                                                                
+                               field: 'adminServer',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },   
+                            {                                                                                                                                                   
+                               title: '管理端口',                                                                                                                                
+                               field: 'adminPort',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },                                                                                                                                                
+                              {                                                                                                                                                   
+                               title: '集群名称',                                                                                                                                
+                               field: 'clusterName',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },
+                              {
+                               title: '主机名',
+                               field: 'hostname',
+                               align: 'center',
+
+                           },
+                             {
+                               title: '服务器',
+                               field: 'host',
+                               align: 'center',
+                           },
+                           {                                                                                                                                                   
+                               title: '状态',                                                                                                                                  
+                               field: 'status',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                               formatter: function (value, row, index) {                                                                                                       
+                                   //var html = [];                                                                                                                            
+                                   return   status_env_span(value);                                                                                                                 
+                                   //html.push('<p class="text-success"> ' + value + '</p>');                                                                                  
+                                   //return html                                                                                                                               
+                               }                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '操作',                                                                                                                                  
+                               field: 'ops',                                                                                                                                    
+                               align: 'center',                                                                                                                                
+                               events: operateEventswlsall,                                                                                                                       
+                               formatter:function(value,row,index){                                                                                                            
+                                 var e;                                                                                                                                        
+                                     e = '<button type="button" data-loading-text="启动中..."  class="processall btn btn-success btn-xs" data-ops="start">全部启动</button> <button type="button" data-loading-text="停止中..."  class="processall btn btn-success btn-xs" data-ops="stop">全部停止</button>';                                  
+                                     return e;                                                                                                                                 
+                                                                                                                                                                               
+                               }                                                                                                                                               
+                           }                                                                                                                                                   
+                       ]             
+          });                                                                                                                                                                  
+                                                                                                                                                                               
+      }, error: function( xhr, status, errorThrown ) {                                                                                                                         
+        alert( "Sorry, there was a problem!" );                                                                                                                                
+        console.log( "Error: " + errorThrown );                                                                                                                                
+        console.log( "Status: " + status );                                                                                                                                    
+        console.dir( xhr );                                                                                                                                                    
+    },                                                                                                                                                                         
+   })                                                                                                                                                                          
+
+
+
+
+//weblogic子表格属性
+
+
+function onExpandRowwls(index, row,$detail) {                                                                                                                                     
+          var parentid = row.id
+          var tableinfo = $detail.html('<table></table>').find('table');                                                                                                                         
+           //$detail.html('<table></table>').find('table');
+           $detail.html('<table id="child_table_wls"></table>').find('table').bootstrapTable('destroy').bootstrapTable({
+                       url : "/apps/deploy_info/wls_data_sub/",
+                       method: "get", //请求方法                                                                                                                               
+                       striped: true, //是否显示行间隔色                                                                                                                       
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  //排序方式                                                                                                                           
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       //queryParams: parentid,
+                       queryParams: function queryParams(p) {   //设置查询参数
+                              p.id = parentid;
+                              return p;
+                       },
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       //sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存
+                          columns: [ {
+                               title: 'ID',
+                               field: 'id',
+                               align: 'center',
+                           },         
+                          {                                                                                                                                                    
+                               title: '受管服务器实例名',                                                                                                                               
+                               field: 'managedServer',                                                                                                                                   
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '监听地址',                                                                                                                              
+                               field: 'managed_port',                                                                                                                                  
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                              {                                                                                                                                                
+                               title: '项目',                                                                                                                            
+                               field: 'project_name',                                                                                                                          
+                                                                                                                                                                               
+                           },
+                              {
+                               title: '项目工程名',
+                               field: 'package',
+
+                           },
+                              {
+                               title: '部署路径',
+                               field: 'path',
+
+                           },                 
+                             {                                                                                                                                                   
+                               title: '主机名',                                                                                                                                
+                               field: 'hostname',                                                                                                                                  
+                           },                                                                                                                                   
+                           {                                                                                                                                                   
+                               title: '服务器',                                                                                                                              
+                               field: 'host',                                                                                                                                  
+                           },         
+                           {                                                                                                                                                   
+                               title: '状态',                                                                                                                                  
+                               field: 'server_status',                                                                                                                                
+                               formatter: function (value, row, index) {                                                                                                       
+                                   //var html = [];                                                                                                                            
+                                   return   status_envs(value);                                                                                                                
+                                   //html.push('<p class="text-success"> ' + value + '</p>');                                                                                  
+                                  //return html                                                                                                                                
+                                 }                                                                                                                                             
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '操作',                                                                                                                                  
+                               field: 'ops',                                                                                                                                   
+                               events: operateEventswls,                                                                                                                          
+                               formatter:function(value,row,index){                                                                                                            
+                                 var e;                                                                                                                                        
+                                     e = '<button id="instance"  type="button" data-loading-text="Loading..."  class="process btn btn-default btn-xs" data-pd=parentid data-ops="start">启动</button> <button type="button"  class="process btn btn-default btn-xs" data-ops="stop">停止</button>';                                  
+                                     return e;                                                                                                                                 
+                                                                                                                                                                               
+                               }                                                                                                                                               
+                           }                                                                                                                                                   
+                       ]                                                                                                                                                       
+                   });                                                                                                                                                         
+                                                                                                                                                                         
+      }                                                                                                                                                                          
+        
+
+window.operateEventslink = {
+
+'click .link' : function(e, value, row, index) {
+    var id = row.id;
+    var host = row.host;
+    var port = row.adminPort;
+    window.open("http://"+host+':'+port+'/console');
+   }
+
+}
+
+
+//weblogic全部启停
+window.operateEventswlsall = {
+        'click .processall' : function(e, value, row, index) {
+          var id = row.id;
+          var host = row.host;
+          var button = $(this);
+          var $start = $(this).button('loading')
+          var ops = button.data('ops');
+          //alert(ops)  
+          //start_run(row.id,row.host,row.path)
+           $.ajax({
+               url: "/apps/wlsinstance_ops/", 
+               data: {                                                                                                  
+                 ID : id,                                                                                              
+                 OPS : ops,
+            },                                                                                                       
+            type: "POST",
+            cache : false,
+            success: function(respose) { 
+                  alert(respose)
+                  $start.button('reset');                                                                                                                  
+                  $('#table0').bootstrapTable('refresh', {url:'/apps/deploy_info/wls_data'});
+                  //refreshOptions()
+               },error: function( xhr, status, errorThrown ) { 
+                   alert( "Sorry, there was a problem!" );                                                                  
+                   $start.button('reset');
+                   //refreshOptions()
+                    
+                  },
+              });
+         },
+    }
+
+
+//weblogic子表启停
+window.operateEventswls = {                                                                                                                                   
+        'click .process' : function(e, value, row, index) {
+          var id = row.id;                                                                                                                                 
+          var host = row.host;
+          var path = row.path;                                                                                                                             
+          var srv = row.managedServer;                                                                                                                             
+          var button = $(this);
+          var $start = $(this).button('loading')                                                                                                           
+          var ops = button.data('ops');
+          //alert(ops)  
+          //start_run(row.id,row.host,row.path)
+           $.ajax({
+               url: "/apps/wlsprocess_ops/", 
+               data: {                                                                                                  
+                 ID : id,                                                                                              
+                 HOST : host,                                                                                          
+                 PATH : path,                                                                                          
+                 SRV  : srv,
+                 OPS  : ops,
+            },                                                                                                       
+            type: "POST",
+            cache : false,
+            success: function(respose) { 
+                  alert(respose)
+                  $start.button('reset');
+                  $("#child_table_wls").bootstrapTable('refresh');
+               },error: function( xhr, status, errorThrown ) { 
+                   alert( "Sorry, there was a problem!" );                                                                  
+                    
+                  },
+              });                                                                                                                                          
+         },                                                                                                                                                
+    }                                                                                                                                                      
+   
+
+function status_env_span(arg1){
+   var html = []
+   if(arg1 == '0'){
+      //html.push('<p class="text-success">正常</p>');
+      html.push('<span class="label label-success">正常</span>');
+   }else if(arg1 == '1'){
+      html.push('<span class="label label-danger">停止</span>');
+      //html.push('<p class="text-danger">停止</p>');
+   }else{
+      //html.push('<p class="text-warning">部分启动</p>');
+      html.push('<span class="label label-warning">部分启动</span>');
+   } 
+  return html
+
+}
+
+
+function status_envs(arg1){                                                                                           
+   var html = []                                                                                                     
+   if(arg1=='0'){
+      html.push('<p class="text-success"><strong>运行</strong></p>');
+    
+    }else{                                                                                                           
+      html.push('<p class="text-danger"><strong>停止</strong></p>');
+    }
+  return html                                                                                                        
+
+}
+</script>

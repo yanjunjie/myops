@@ -1,0 +1,65 @@
+{% extends "monitor/dashboard.html" %}
+  {% block content-panel  %}
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">Module Monitor</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="panel panel-default">
+            <div class="panel-heading">title</div>
+            <div class="panel-body">
+                 value
+            </div>
+        </div>       
+        <!-- <table id="tb_departments"></table> -->
+        <div >
+       
+        <div id="toolbar">
+            <div class="form-inline" role="form">
+               <button id="add" type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">新增</button>
+            </div>
+        </div>
+           <section class="content">
+    <div>
+        <div class="box-body" >
+        {% if all_host %}
+            {% for host in all_host %}
+                <a href="{% url 'host_info' host.hostname 0 %}">
+                    <div class="col-md-3" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                      <div class="box box-info">
+                        <div class="box-header with-border">
+                          <h3 class="box-title" >{{ host.hostname }}</h3>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                          {{ host.ip_addr }}
+                        </div><!-- /.box-body -->
+                      </div><!-- /.box -->
+                    </div>
+                </a>
+            {% endfor %}
+        {% endif %}
+        </div>
+        <!-- /.box-body -->
+        <!-- /.box-footer-->
+      </div>
+
+      <!-- Your Page Content Here -->
+    </section>
+    </div>                   
+
+    <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    </div>
+    <!-- /#page-wrapper -->
+
+
+<script>
+</script>
+{% endblock %}
+

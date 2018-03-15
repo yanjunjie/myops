@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+      <ul class="nav nav-sidebar">
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'app_mon' %}">应用监控</a></li>
+        <li><a href="{% url 'process_mon' %}">进程监控</a></li>
+        <li><a href="{% url 'host_mon' %}">主机监控</a></li>
+        <li><a href="{% url 'module_mon' %}">组件监控</a></li>
+      </ul>
+      <!--
+      <a href="#collapseOne" class="nav-header" data-toggle="collapse"><i class="icon-table"></i>组件监控 </a>  
+        <ul id="collapseOne" class="nav nav-list collapse in">  
+            <li ><a href="{% url 'module_mon' %}">Apache</a></li>  
+            <li ><a href="/monitor/host_mon/">Zookeeper</a></li>  
+            <li ><a href="/monitor/host_mon/">JVM</a></li>  
+            <li ><a href="/monitor/host_mon/">Oracle</a></li>  
+        </ul>
+       -->
+{% endblock %}
+
+{% block content-panel %}
+Hosts
+{% endblock %}
+
+{% block bottom-js %}
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+        $("#navbar-menu a[href='"+ "{% url 'monitor' %}"  + "']").parent().addClass("active");
+
+    });
+    //$(function () { $('#collapseOne').collapse('hide')});
+    </script>
+
+{% endblock %}

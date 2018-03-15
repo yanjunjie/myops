@@ -1,0 +1,54 @@
+<script type="text/javascript">
+var mycpu = echarts.init(document.getElementById('cpu'));
+mycpu.showLoading();
+setInterval(function () {
+$.get("/monitor/get/cpu/{{ hostname }}/"+timing).done(function (data) {
+    var data = JSON.parse(data);
+    mycpu.hideLoading();// 加载动画
+    mycpu.setOption({
+        title: {
+            text: 'CPU使用率'
+        },
+        toolbox: {
+            show : true,
+            feature : {
+                mark : {show: true},
+                dataView : {show: true, readOnly: false},
+                saveAsImage : {show: true}
+            }
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data:['CPU']
+        },
+        xAxis: {
+            boundaryGap: false,
+            data: data.data_time
+        },
+        yAxis: [{
+                type : 'value',
+                axisLabel : {
+                    formatter : '{value} %'
+                },
+                max: 100,
+        }],
+        series: [{
+            boundaryGap: false,
+            name: 'CPU',
+            smooth:true,
+            type: 'line',
+            symbol: 'none',
+            stack: 'a',
+            areaStyle: {
+                normal: {
+                }
+            },
+            data: data.cpu_percent
+        }
+        ]
+    });
+});
+}, 10000);
+</script>

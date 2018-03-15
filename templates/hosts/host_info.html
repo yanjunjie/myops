@@ -1,0 +1,255 @@
+{% extends "monitor/dashboard.html" %}
+  {% block content-panel  %}
+  {% load staticfiles %}
+<link href="{% static 'css/bootstrap-select.css' %}" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{% static 'js/bootstrap-select.js' %} "> </script>
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">Host Info</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="panel panel-default">
+            <div class="panel-heading">查询条件</div>
+            <div class="panel-body">
+            <form id="formSearch" class="form-horizontal">
+                    <div class="form-group" style="margin-top:15px">
+                        <label class="control-label col-sm-1"  for="group_id" >主机组:</label>
+                        <div class="col-sm-3">
+                             <select id='group_id' class="form-control" >
+                                    <option value ="all">所有</option>
+                                    {% for group in group_list %}
+                                    <option value ="{{ group.id }}">{{ group.name }} </option>
+                                    {% endfor %}
+                            </select>
+                        </div>
+                        <label class="control-label col-sm-1" for="txt_search_statu">应用类别:</label>
+                        <div class="col-sm-3">
+                              <select id='middleware' class="form-control">
+                                                    <option value ="all">所有</option>
+                                                      {% for item in middleware %}
+                                                          <option value ="{{item.name}}">{{item.name}}</option>
+                                                          {% endfor %}
+                                                  </select>
+                        </div>
+                        <div class="col-sm-4" style="text-align:left;">
+                            <button type="button" style="margin-left:50px" id="btn_query" class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>       
+        <!-- <table id="tb_departments"></table> -->
+    
+        <div >
+    <table id="table0"></table>
+    </div>                   
+
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /#page-wrapper -->
+   
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myModalLabel">
+					模态框（Modal）标题
+				</h4>
+			</div>
+			<div class="modal-body">
+				在这里添加一些文本
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+				<button type="button" class="btn btn-primary">
+					提交更改
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+
+<script type="text/javascript">
+
+//$(document).ready(function($) {
+//  alert("test")
+//});
+
+function selectOnchang1(obj){ 
+  var value = obj.options[obj.selectedIndex].value;
+  alert(value)
+  var tableinfo = $('table#table0');
+  
+}
+
+
+$(document).ready(function () {          
+          //调用函数，初始化表格  
+          selectOnchang("all");  
+  
+          //$("#search").bind("click", initTable);  
+      });
+
+// $(document).ready(function($) {
+function selectOnchang(obj){ 
+    value='all'
+    if(obj != 'all'){
+         var value = obj.options[obj.selectedIndex].value;
+	  }
+    //var tableinfo = $('table#table0');
+    //$("#table0").bootstrapTable('removeAll');
+    $.ajax({
+      url: "data",
+      data: {
+            Type : value,
+            },
+      type: "GET",
+      dataType : "json",
+      success: function(data) {
+          $("#table0").bootstrapTable('destroy').bootstrapTable({
+          data: data,
+                       method: "get", //请求方法                                                                                                                               
+                       search: true, //是否显示搜索框功能
+                       pagination: true, //是否分页
+                       showRefresh: true, //是否显示刷新功能
+                       showToggle: true,
+                       striped: true, //是否显示行间隔色
+                       sortable: true, //是否启用排序                                                                                                                          
+                       sortOrder: "asc",  //排序方式                                                                                                                           
+                       pagination: true,    // 显示页码等信息                                                                                                                  
+                       showColumns: true,  // 选择显示的列                                                                                                                    
+                       clickToSelect: true, //在点击行时，自动选择rediobox 和 checkbox                                                                                         
+                       pageNumber: 1,         //首页页码                                                                                                                       
+                       //queryParams: queryParams,//传递参数（*）                                                                                                                
+                       //sidePagination: 'server',   // //分页方式：client 客户端分页，server 服务端分页                                                                         
+                       cache: false, // 不缓存                                                                                                                                 
+                       //responseHandler: responseHandler,//格式化数据
+                   columns: [
+                          {
+                               title: 'ID',                                                                                                                                    
+                               field: 'id',                                                                                                                                    
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '主机名',                                                                                                                                  
+                               field: 'hostname',                                                                                                                               
+                               align: 'center',                                                                                                                                
+                               formatter: function (value, row, index) {
+                                   var html = [];
+                                   html.push('<a href='+ row.id +' title="查看趋势图" class="link" >' + value + ' </a>');
+                                   return html
+                                 }
+                                                                                                                                                                               
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: 'IP',                                                                                                                            
+                               field: 'ipaddr',                                                                                                                               
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '系统类型',                                                                                                                                
+                               field: 'systemtype',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },
+                              {                                                                                                                                                   
+                               title: 'IDC',                                                                                                                                
+                               field: 'idc',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },
+                              {                                                                                                                                                   
+                               title: '时间',                                                                                                                                
+                               field: 'dat',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           }, 
+                             {                                                                                                                                                   
+                               title: '采集频率',                                                                                                                                  
+                               field: '',                                                                                                                                   
+                               align: 'center',                                                                                                                                
+                                                                                                                                                                               
+                           },                                                                                                                                                
+                           {                                                                                                                                                   
+                               title: '状态',                                                                                                                                  
+                               field: 'status',                                                                                                                                
+                               align: 'center',                                                                                                                                
+                           },                                                                                                                                                  
+                           {                                                                                                                                                   
+                               title: '操作',                                                                                                                                  
+                               field: 'ops',                                                                                                                                    
+                               align: 'center',                                                                                                                                
+                               formatter: function (value, row, index) {                                                                                                       
+                                   return   host_detail(row);                                                                                                                
+                               }
+                           }                                                                                                                                                   
+                       ]                                                                                                                                                       
+          });                                                                                                                                                                  
+                                                                                                                                                                               
+      }, error: function( xhr, status, errorThrown ) {                                                                                                                         
+        alert( "Sorry, there was a problem!" );                                                                                                                                
+        console.log( "Error: " + errorThrown );                                                                                                                                
+        console.log( "Status: " + status );                                                                                                                                    
+        console.dir( xhr );                                                                                                                                                    
+    },                                                                                                                                                                         
+   })                                                                                                                                                                          
+ }; 
+
+/**
+$("select#type_id").on("change",function(){
+
+**/
+
+function refresh_table(){
+
+  alert("refresh")
+}
+
+function host_detail(arg){                                                                                           
+  var html = []
+  html.push('<a href='+ arg.id +' title="查看趋势图" class="link" >详情 </a>');
+  return html                                                                                                        
+
+} 
+
+
+var $table = $('#table0');
+$("select#group_id").on("change",function(){
+    var data = []
+    var $table = $('#table0');
+    var gid = $('select#group_id').val();
+    $.ajax({
+    url: "data",
+    data: {
+        selected_gid : gid                                                                                                                                                     
+    },
+    type: "GET",
+    dataType : "json", 
+    
+    success: function(data) {
+        //$table.bootstrapTable({data: data});
+        $table.bootstrapTable('load', data);
+    }, error: function( xhr, status, errorThrown ) {                                                                                                                           
+        alert( "Sorry, there was a problem!" );                                                                                                                                
+        console.log( "Error: " + errorThrown );                                                                                                                                
+        console.log( "Status: " + status );                                                                                                                                    
+        console.dir( xhr );                                                                                                                                                    
+    },                                                                                                                                                                         
+                                                                                                                                                                               
+    })                                                                                                                                                                         
+});
+
+</script>
+{% endblock %}
+

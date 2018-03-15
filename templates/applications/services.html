@@ -1,0 +1,46 @@
+{% extends "applications/dashboard.html" %}
+{% block content-panel  %}
+{% load staticfiles %}
+<link href="{% static 'css/fileinput.min.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/lab.css' %}" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{% static 'js/fileinput.min.js' %} "> </script>
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">Services Manager</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        <ul id="myTab" class="nav nav-tabs">
+	<li class="active"><a href="#weblogic_tabs" data-toggle="tab">Weblogic</a></li>
+	<li><a href="#java_tabs" data-toggle="tab">Java</a></li>
+	<li><a href="#apache_tabs" data-toggle="tab">Apache</a></li>
+	<li><a href="#Zookeeper_tabs" data-toggle="tab">Zookeeper</a></li>
+        </ul>
+         <div class="tab-content">                                                                        
+                            <div class="tab-pane active" id="weblogic_tabs">                                                     
+                                <p></P>
+                                {% include 'applications/weblogic.html' %}                                                               
+                            </div>                                                                                       
+                            <div class="tab-pane" id="java_tabs">                                                        
+                                <p></P>
+                                {% include 'applications/java.html' %}                                                           
+                            </div>                                                                                       
+         </div>              
+
+        </div>
+        <!-- /.row -->
+        <!-- <table id="tb_departments"></table> -->
+                    <!-- /.panel -->
+        </div>
+                <!-- /.col-lg-12 -->
+        </div>
+
+        <!-- /.row -->
+<script type="text/javascript">                                                                                                                         
+
+</script> 
+
+        </div>
+        <!-- /#page-wrapper -->
+{% endblock %}

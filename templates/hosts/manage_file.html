@@ -1,0 +1,191 @@
+{% extends "hosts/dashboard.html" %}
+{% block content-panel  %}
+{% load staticfiles %}
+<link href="{% static 'css/fileinput.min.css' %}" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{% static 'js/fileinput.min.js' %} "> </script>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">Host Info</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        <div class="panel panel-default">
+        <div class="panel-heading">文件上传</div>
+        <div class="panel-body">
+                <div class="demo-box">
+                        <div id="id_span_msg"></div>
+                       <input id ="uploadfile" name="uploadfile" type="file" class="file form-control" data-show-preview="false" placeholder="{{package}}" />
+                </div>
+        <div id="id_span_msg"></div>
+        </div>
+        </div>
+        <!-- /.row -->
+        <!-- <table id="tb_departments"></table> -->
+    
+        <div >
+         <div id="toolbar">
+            <div class="form-inline" role="form">
+                <div class="form-group" >
+                    <label class="control-label " for="group_id" >分类:</label>
+                    <select id='group_id' class="form-control">
+                     <option value ="all">未分组</option>
+                                     {% for group in request.user.host_groups.select_related %}
+                                     <option value ="{{ group.id }}">{{ group.name }}  [ {{ group.bindhosttouser_set.select_related.count }} ]</option>
+                                     {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                  <label class="control-label" for="exampleInputName2">远程文件路径</label>
+                  <input type="text" placeholder="必须输入绝对路径，不要包含文件名" class="form-control" name="remote_file_path" id="remote_file_path" >
+                </div>
+                <div class="form-group">
+                   <label class="control-label" for="args">文件</label>
+                   <select id='local_filename' class="form-control" name="local_filename">
+	            {% for file in remote_file_list %}
+                      	<option value="{{file}}">{{file}}</option>
+                	{% endfor %}
+                    </select>
+                </div>
+               <!--  <button type="button"   style="margin-left:50px" id="btn_query" class="btn btn-success pull-right" onclick="SubmitTask()" >执行任务</button> -->
+               <button id="ok" type="submit" class="btn btn-success pull-right">执行</button>
+            </div>
+        </div>
+        <table id="tb1"
+             data-toggle="table"
+             data-show-columns="true" 
+             data-toolbar="#toolbar" 
+             data-search="true" 
+             data-show-toggle="true"
+             data-pagination="true"
+             data-url="/hosts/hosts_list"
+             data-click-to-select="true">
+            <thead>
+            <tr>
+                  <th data-field="state" data-checkbox="true"></th>
+                  <th data-field="id" data-sortable="true">ID</th>
+                  <th data-field="hostname" data-sortable="true">Hostname</th>
+                  <th data-field="ipaddr" data-sortable="true">IP</th>
+                  <th data-field="systemtype" data-sortable="true">System type</th>
+            </tr>
+            </thead>
+        </table>                                                                                                                                                               
+    </div>                   
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+
+            <!-- /.row -->
+
+<script type="text/javascript">                                                                                                                         
+
+
+var $table = $('#tb1');
+$("select#group_id").on("change",function(){
+    var data = []
+    var $table = $('#tb1');
+    var gid = $('select#group_id').val();
+    $.ajax({
+    url: "/hosts/hosts_list",
+    data: {
+        selected_gid : gid
+    },
+    type: "GET",
+    dataType : "json", 
+    
+    success: function(data) {
+        //$table.bootstrapTable({data: data});
+        $table.bootstrapTable('load', data);
+    }, error: function( xhr, status, errorThrown ) {                                                                                                                           
+        alert( "Sorry, there was a problem!" );                                                                                                                                
+        console.log( "Error: " + errorThrown );                                                                                                                                
+        console.log( "Status: " + status );                                                                                                                                    
+        console.dir( xhr );                                                                                                                                                    
+    },                                                                                                                                                                         
+                                                                                                                                                                               
+    })                                                                                                                                                                         
+}); 
+
+
+
+     var $table = $('#tb1'),
+         $ok = $('#ok');
+     var data_list = {};
+     var hostids = '';
+     $(function () {
+        $ok.click(function () {
+          //var row=JSON.stringify($table.bootstrapTable('getSelections'));
+          //alert(row);
+           var local_filename = $('select#local_filename').val();
+           var hosts = getIdSelections()
+           var hostname = getNameSelections()
+           var path = getpath()
+           if (hosts){
+            $.ajax({
+	    url: "/hosts/file_push/", 
+	    data: { 
+	       host_ip : hosts,
+               host_name : hostname,
+	       remote_path : path,
+               local_files : local_filename
+	    }, 
+	    type: "POST",
+	    cache : false,
+	    
+	    success: function(respose) {
+	     //alert('already update!')
+	     window.location.reload();
+	    },error: function( xhr, status, errorThrown ) {
+	    alert( "Sorry, there was a problem!" );
+	    console.log( "Error: " + errorThrown );
+	    console.log( "Status: " + status );
+	    console.dir( xhr );
+	    },	    
+	    });
+           }
+        });
+    });
+    function getIdSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+        return row.ip;
+    });
+    }
+    function getNameSelections() {
+    return $.map($table.bootstrapTable('getSelections'), function (row) {
+        return row.hostname;
+    });
+    }
+    function getpath(){
+       var remote_path_val = $.trim($("#remote_file_path").val());
+       return remote_path_val
+    }
+   
+    $('#uploadfile').fileinput({                                                                                                                        
+    uploadUrl : "/hosts/handle_uploaded_file/",                                                                                                        
+    uploadExtraData : function() {                                                                                                                      
+            var obj = {};                                                                                                                               
+            $('select').each(function() {                                                                                                               
+                var id = $(this).attr('id'), val = $(this).val();                                                                                       
+                obj[id] = val;                                                                                                                          
+            });                                                                                                                                         
+            return obj;                                                                                                                                 
+        }                                                                                                                                               
+                                                                                                                                                        
+    //endfileinput                                                                                                                                      
+    });                                                                                                                                                 
+    $('#uploadfile').on('filebatchuploadcomplete', function(event,data,previewId,index) {
+        var form = data.form, files = data.files, extra = data.extra,
+            response = data.response, reader = data.reader;
+            //upload_files.push(response.uploaded_file_path);
+    $('#id_span_msg').append("<p class=bg-success>上传成功</p>");
+    });
+
+
+
+</script> 
+
+        </div>
+        <!-- /#page-wrapper -->
+{% endblock %}

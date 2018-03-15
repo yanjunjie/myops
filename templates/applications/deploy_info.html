@@ -1,0 +1,284 @@
+{% extends "applications/dashboard.html" %}
+{% block content-panel  %}
+{% load staticfiles %}
+<link href="{% static 'css/fileinput.min.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/lab.css' %}" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{% static 'js/fileinput.min.js' %} "> </script>
+        
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">App Deploy</h2>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        <ul id="myTab" class="nav nav-tabs">
+	<li class="active"><a href="#status" data-toggle="tab">状态</a></li>
+	<li><a href="#pack" data-toggle="tab">包管理</a></li>
+	<li><a href="#conf" data-toggle="tab">配置管理</a></li>
+	<li><a href="#jmeter" data-toggle="tab">部署</a></li> 
+        </ul>
+        <div id="myTabContent" class="tab-content">
+           	<div class="tab-pane fade" id="jmeter">
+                    <h3>部署类型:</h3>
+               	<label class="checkbox-inline">
+		<input type="radio"  name="optionsRadiosinline" id="optionsRadiosJava"  value="java" checked> Java
+	       </label>
+
+        	<label class="checkbox-inline">
+		<input type="radio"  name="optionsRadiosinline" id="optionsRadiosWls"  value="weblogic"> Weblogic
+       	       </label>
+
+                <div class="panel panel-default">
+                </div>
+                    <div id="table1_msg" style="display:none">
+
+                                <div class="panel panel-default">
+                                                        <p></p>
+                                                        <div id="toolbar0">
+                                                        <div class="form-inline" role="form">
+                                                                            <div class="form-group" >
+                                                                                  <label class="control-label " for="group_id" >分类:</label>
+                                                                                  <select id='group_id' class="form-control" onchange="javascript:location.href(this.options[this.selectedIndex].value)" onkeydown ="enterSubmit(event)">
+                                                                                   <option value ="all">未分组 </option>
+                                                                                                   {% for h in hosts %}
+                                                                                                   <option value ="{% url 'app_deploy' %}">{{ h.name }} </option>
+                                                                                                   {% endfor %}
+                                                                                  </select>
+                                                                              </div>
+                                                                            <div class="form-group">
+                                                                                <label class="control-label" for="exampleInputName2">部署路径</label>
+                                                                                <input type="text" placeholder="/midware/wls12.1.3/applications" class="form-control" name="remote_file_path" id="remote_file_path"  disabled >
+                                                                              </div>
+                                                                              
+                                                                              <div class="form-group">
+                                                                                 <label class="control-label" for="args">部署包</label>
+                                                                                 <select id='local_filename' class="form-control" name="local_filename">
+                                                                                  {% for file in remote_file_list %}
+                                                                                      <option value="{{file}}">{{file}}</option>
+                                                                                      {% endfor %}
+                                                                                  </select>
+                                                                              </div>
+                                                                             
+                                                                              <div class="form-group">
+                                                                                 <label class="control-label" for="args">部署用户</label>
+                                                                                 <select id='local_filename' class="form-control" name="local_filename">
+                                                                                      <option value="weblogic">weblogic</option>
+                                                                                      <option value="root">root</option>
+                                                                                  </select>                                                                                                                                                  
+                                                                              </div>
+                                                                              <button id="wok" type="button" class="btn btn-success " data-loading-text="部署中...">部署</button>
+                                                                              <button id="wupdate" type="button" class="btn btn-info"  data-loading-text="更新中...">更新</button>
+                                                                              <button  id="viewinstancelog" type="button" data-toggle="modal" class="btn btn-default" data-target="#myModal" class="btn btn-default">部署日志</button>
+                                                        </div>
+                                                        </div>
+                                                          <p></p>
+<table id = "tb1" 
+             data-toggle="table"
+             data-show-columns="true" 
+             data-toolbar="#toolbar" 
+             data-search="true" 
+             data-show-toggle="true"
+             data-pagination="true"
+             data-url="/apps/app_mgr_data"
+             data-reorderable-columns="true">
+            <thead>
+            <tr>
+                  <th data-field="app_name" data-sortable="true">应用</th>
+                  <th data-field="app_package" data-sortable="true">应用包名</th>
+                  <th data-field="app_path" data-sortable="true">安装路径</th>
+                  <th data-field="subsys_name" data-sortable="true">子系统</th>
+                  <th data-field="app_host" data-sortable="true">服务器</th>
+                  <th data-field="memo" data-sortable="true">描述</th>
+            </tr>
+            </thead>
+        </table>
+        </div>
+
+        </div>
+	</div>
+	<div class="tab-pane fade" id="ejb">
+		<p>Enterprise Java Beans（EJB）是一个创建高度可扩展性和强大企业级应用程序的开发架构，部署在兼容应用程序服务器（比如 JBOSS、Web Logic 等）的 J2EE 上。
+		</p>
+	</div>
+	   <div class="tab-pane fade in active" id="status">
+                      <p></p>
+                      <div class="panel panel-default">
+                        <div class="panel-heading">WebLogic实例状态</div>
+                        <div class="panel-body">
+                        <div  class="num clearfix">
+                         <ul class="gist_modify pull-left list-inline">
+                            {% for h in server_status %}
+                            <li>
+                              <span class="lab_yellow">总共</span>
+                              <i>{{ h.count }}</i> 个实例
+                           </li>
+                           <li>
+                              <span class="lab_green">运行</span>
+                              <i>{{ h.running }}</i> 个实例
+                           </li> 
+                           <li>
+                              <span class="lab_red">停止</span>
+                              <i>{{ h.stopped }}</i> 个实例
+                           </li>
+                           {% endfor %}
+                         </ul>
+                        </div>
+                        
+                        <div id="table_data"></div>
+                          <!-- <div id="toolbar_refresh">
+                                  <button id="button" class="btn btn-default">refresh</button>
+                           </div> -->
+                          <table id="hostinfo" data-toggle="table" data-show-columns="true" data-toolbar="#toolbar_refresh" data-search="true"  data-show-toggle="true" data-toolbar="#toolbar_refresh" data-show-refresh="true"  data-pagination="true" data-reorderable-columns="true" data-url="/apps/deploy_info/">
+                            <thead>
+                              <tr>
+                                 <th data-field="id" data-sortable="true">ID</th>
+                                 <th data-field="instance" data-sortable="true">实例名</th>
+                                 <th data-field="port" data-sortable="true">端口</th>
+                                 <th data-field="project" data-sortable="true">工程名</th>
+                                 <th data-field="package" data-sortable="true">运行包</th>
+                                 <th data-field="server" data-sortable="true">服务器</th>
+                                 <th data-field="status" data-sortable="true">运行状态</th>
+                                 <th data-field="date" data-sortable="true">启动时间</th>
+                                 <th data-field="run" data-sortable="true">操作</th>
+                              </tr>
+                            </thead>
+                            {% for h in server_list_status %}
+                            <tr>                                                                                                                                               
+                                <td >{{ h.id }}</td>                                                                                                      
+                                <td >{{ h.ServerName }}</td>                                                                                                      
+                                <td >{{ h.Port }}</td>                                                                                                      
+                                <td >{{ h.project_name }}</td>                                                                                                         
+                                <td >{{ h.package }}</td>                                                                                                         
+                                <td >{{ h.host }}</td>                                                                                                         
+                                {% if h.ServerName == 'AdminServer' %}
+                                   {% if h.admin_status == '0' %}
+                                      <td  class="success">已启动</td>
+                                   {% else %}
+                                      <td  class="danger">停止</td>                                                                                                  
+                                   {% endif %}
+                                {% else %}
+                                    {% if h.server_status == '0' %}
+                                      <td  class="success">已启动</td>
+                                    {% else %}
+                                      <td  class="danger">停止</td> 
+                                    {% endif %}
+                                {% endif %}
+                                <td >{{ h.last_date|date:"Y-m-d H:i:s" }}</td>                                                                                                         
+                                <td>                                                                                                                                           
+                                   <button type="button" id="wlsops" class="btn btn-success btn-xs" data-id={{ h.id }} data-servername={{ h.ServerName }} data-hostip={{ h.host }} data-username{{ item.username }} data-ops="start">启动</button>
+                                   <button type="button" id="wlsops" class="btn btn-danger btn-xs" data-id={{ h.id }} data-servername={{ h.ServerName }} data-hostip={{ h.host }} data-username{{ item.username }} data-ops="stop">停止</button>
+                                   <button type="button" class="btn btn-primary btn-xs edit">查看日志</button>                                                                     
+                                </td>                                                                                                                                          
+                            </tr>                                                                                                                                              
+                            {% endfor %}                                                                                                                                       
+                        </table>       
+                        </div>                                                                                                                                                 
+                      </div> 
+	   </div>
+           <div class="tab-pane fade" id="pack">
+                    <p></p>
+                    <div class="panel panel-default"> 
+                       <div class="panel-heading">上传部署包</div>
+                       <div class="panel-body">
+                            <div class="demo-box">
+                                 <div id="id_span_msg"></div>
+                                 <input id ="uploadfile" name="uploadfile" type="file" class="file form-control" data-show-preview="false" placeholder="{{package}}" />
+                            </div>
+                       </div>
+                    </div>          
+                      <div class="panel panel-default">
+                        <div class="panel-heading">部署包列表</div>
+                        <div class="panel-body">
+                        <div id="ret" role="alert"></div>
+                        <table id="pkg" class="table table-bordered table-hover">
+                            <th>包名</th>
+                            <th>最后更新时间</th>
+                            <th>操作</th>
+                            {% for file in data %}
+                            <tr>
+                                <td class="filename">{{ file.file }}</td>
+                                <td class="data">{{ file.mtime }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-xs edit">编辑</button>
+                                    <button type="button" class="btn btn-danger btn-xs del">删除</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        </div>
+                      </div>
+           </div>
+	   <div class="tab-pane fade" id="conf">
+           <h3 class="modal-title" id="myModalLabel">环境配置</h3>
+	   <p></p>
+             <div class="btn-group" data-toggle="buttons">
+		<label class="btn btn-default">
+			<input type="radio" name="options" id="option1"> 开发
+		</label>
+		<label class="btn btn-default">
+			<input type="radio" name="options" id="option2"> 测试
+		</label>
+		<label class="btn btn-default">
+			<input type="radio" name="options" id="option3"> 生产
+		</label>
+             </div>	
+                <div class="panel panel-default">
+                </div>
+
+               <ul class="nav nav-tabs">
+   		   <li class="active"><a href="#">1.0</a></li>
+		   <li><a href="#">2.0</a></li>
+  		   <li><a href="#">3.0(启用)</a></li>
+               </ul>
+	   </div>
+              
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			  <div class="modal-dialog">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title" id="myModalLabel">部署日志</h4>         
+			      </div>
+			      <div class="modal-body" style="word-wrap:break-word;">			      
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-default remo" data-dismiss="modal">关闭</button>
+			      </div>
+			    </div>
+			  </div>
+		</div>                                              
+
+        </div>
+        <!-- /.row -->
+        <!-- <table id="tb_departments"></table> -->
+                    <!-- /.panel -->
+        </div>
+                <!-- /.col-lg-12 -->
+        </div>
+
+        <!-- /.row -->
+<script type="text/javascript">                                                                                                                         
+$(function(){
+   $(":radio").click(function(){
+     if($(this).val() == "java"){
+        //alert($(this).val());
+        $('#table2_msg').show();
+        $('#table1_msg').hide();
+        return type = $(this).val() 
+     }else{
+        $('#table1_msg').show();
+        $('#table2_msg').hide();
+        //radioweblogic($)
+        return type = $(this).val() 
+     }
+   });
+  });
+
+
+
+</script> 
+
+        </div>
+        <!-- /#page-wrapper -->
+{% endblock %}
