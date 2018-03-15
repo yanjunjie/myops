@@ -16,7 +16,7 @@ MySQL: >= 5.1
 - 应用监控 - 进程监控 - 主机监控 - 组件监控
 
 
-![performance](images/kafka01.png)
+![performance](myops/image/appdep.jpg)
 
 ![performance](images/kafka02.png)
 
